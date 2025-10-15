@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as repo from '../repository/cursoRepository.js';
+import * as repo from '../repositories/cursoRepository.js';
 
 const endpoints = Router();
 

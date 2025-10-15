@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as repo from '../repository/agendamentoRepository.js';
+import * as repo from '../repositories/agendamentoRepository.js';
 
 const endpoints = Router();
 

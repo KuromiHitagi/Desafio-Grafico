@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -10,7 +10,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { agendamentosData } from "./chartData";
 import "./index.scss";
 
 ChartJS.register(
@@ -24,9 +23,35 @@ ChartJS.register(
 );
 
 export default function GraficoLinha() {
+  const [agendamentosData, setAgendamentosData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAgendamentos = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/agendamentos');
+        if (!response.ok) {
+          throw new Error('Erro ao buscar dados dos agendamentos');
+        }
+        const data = await response.json();
+        setAgendamentosData(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAgendamentos();
+  }, []);
+
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>Erro: {error}</div>;
+
   // Extrair labels (datas) e valores (agendamentos)
-  const labels = agendamentosData.map((item) => item._id);
-  const valores = agendamentosData.map((item) => item.totalAgendamentos);
+  const labels = agendamentosData.map((item) => new Date(item.data_agendamento).toLocaleDateString('pt-BR'));
+  const valores = agendamentosData.map((item) => item.total_agendamentos);
 
   const data = {
     labels,
@@ -46,7 +71,26 @@ export default function GraficoLinha() {
     plugins: {
       legend: { position: "top" },
       title: { display: true, text: "Agendamentos por Dia" },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return `Agendamentos: ${context.parsed.y}`;
+          }
+        }
+      }
     },
+    scales: {
+      x: { ticks: { font: { size: 10 } } },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+          callback: function(value) {
+            return value;
+          }
+        }
+      }
+    }
   };
 
   return (

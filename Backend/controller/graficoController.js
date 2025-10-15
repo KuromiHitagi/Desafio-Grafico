@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as repo from '../repository/graficoRepository.js';
+import * as repo from '../repositories/graficoRepository.js';
 
 const endpoints = Router();
 
